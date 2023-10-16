@@ -12,8 +12,20 @@ function App() {
     if (countSnap.exists()) setCount(countSnap.data().count);
   }
 
+  async function getUsers() {
+    const headers = { Authorization: 'Bearer franspona' };
+    fetch('https://tictactoe.aboutdream.io/users/', {
+      method: 'GET',
+      headers: headers,
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch((err) => console.log(JSON.stringify(err)));
+  }
+
   useEffect(() => {
     getCount();
+    getUsers();
   }, []);
   function handleButtonClick() {}
 
