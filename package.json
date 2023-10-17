@@ -10,12 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "argon2": "^0.31.1",
-    "aws-sdk": "^2.1473.0",
-    "bcrypt": "^5.1.1",
     "firebase": "^10.5.0",
-    "mock-aws-s3": "^4.0.2",
-    "nock": "^13.3.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

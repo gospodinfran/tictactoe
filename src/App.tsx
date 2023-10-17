@@ -2,6 +2,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import LoginForm from './components/LoginForm';
+import TicTacToe from './components/TicTacToe';
 
 function App() {
   const [count, setCount] = useState<number>();
@@ -32,6 +33,7 @@ function App() {
     <>
       <LoginForm />
       <button onClick={handleButtonClick}>Increase count</button>
+      <TicTacToe />
     </>
   );
 }
