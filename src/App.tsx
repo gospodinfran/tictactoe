@@ -13,9 +13,9 @@ function App() {
   }
 
   async function getUsers() {
-    const headers = { Authorization: 'Bearer franspona' };
+    const headers = { Authorization: 'Bearer spona' };
     fetch('https://tictactoe.aboutdream.io/users/', {
-      method: 'GET',
+      method: 'POST',
       headers: headers,
     })
       .then((res) => res.json())
@@ -24,7 +24,6 @@ function App() {
   }
 
   useEffect(() => {
-    getCount();
     getUsers();
   }, []);
   function handleButtonClick() {}
@@ -33,7 +32,6 @@ function App() {
     <>
       <LoginForm />
       <button onClick={handleButtonClick}>Increase count</button>
-      {count ? count : ''}
     </>
   );
 }
