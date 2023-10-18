@@ -7,7 +7,7 @@ export default function TicTacToe() {
       <div className="">
         {board.map((piece, index) => {
           return (
-            <div className="h-6 w-6 bg-red-300" key={index}>
+            <div className="h-6 w-6 border" key={index}>
               {piece}
             </div>
           );
