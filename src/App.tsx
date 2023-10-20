@@ -1,4 +1,11 @@
-import { doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import LoginForm from './components/LoginForm';
@@ -7,17 +14,13 @@ import './index.css';
 import Header from './components/Header';
 import CreateGame from './components/CreateGame';
 import useLocalStorage from './customHooks/useLocalStorage';
+import GamesMapped from './components/GamesMapped';
 
 function App() {
   const [user, setUser] = useLocalStorage();
   const [register, setRegister] = useState(false);
   const [loginForm, setLoginForm] = useState(true);
-
-  async function getCount() {
-    // const countRef = doc(db, 'count', 'first');
-    // const countSnap = await getDoc(countRef);
-    // if (countSnap.exists()) setCount(countSnap.data().count);
-  }
+  const [games, setGames] = useState<Object[]>([]);
 
   useEffect(() => {}, []);
 
@@ -25,9 +28,26 @@ function App() {
     localStorage.setItem('user', JSON.stringify(user));
   }, [user]);
 
+  const fetchGames = async () => {
+    const gamesRef = collection(db, 'games');
+    const q = query(gamesRef, limit(10));
+    const qSnap = await getDocs(q);
+    const cleanedGames = qSnap.docs.map((game) => game.data());
+    setGames(cleanedGames);
+  };
+
+  useEffect(() => {
+    console.log(games);
+  }, [games]);
+
   return (
     <>
-      <Header user={user} setUser={setUser} setLoginForm={setLoginForm} />
+      <Header
+        user={user}
+        setUser={setUser}
+        setLoginForm={setLoginForm}
+        onFetchGames={fetchGames}
+      />
       <div className="flex flex-col items-center mt-36">
         {user === null && loginForm && (
           <LoginForm
@@ -44,6 +64,7 @@ function App() {
       </div>
       <div className="mt-20" />
       {user && <CreateGame />}
+      {user && <GamesMapped games={games} />}
     </>
   );
 }
