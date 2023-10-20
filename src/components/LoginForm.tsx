@@ -10,9 +10,21 @@ import { useState } from 'react';
 import { db } from '../../lib/firebase';
 import { useHashing } from '../useHashing';
 
-export default function LoginForm() {
+interface LoginFormProps {
+  register: boolean;
+  setRegister: React.Dispatch<React.SetStateAction<boolean>>;
+  setUser: React.Dispatch<React.SetStateAction<null | string>>;
+}
+
+export default function LoginForm({
+  register,
+  setRegister,
+  setUser,
+}: LoginFormProps) {
   const [formValue, setFormValue] = useState('');
   const [passwordValue, setPasswordValue] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   function handleFormChange(e: React.ChangeEvent<HTMLInputElement>) {
     setFormValue(e.target.value);
@@ -30,37 +42,98 @@ export default function LoginForm() {
     const usernamesRef = collection(db, 'usernames');
     const q = query(usernamesRef, where('username', '==', formValue), limit(1));
     const qSnap = await getDocs(q);
+
+    // when registering, needs to be empty and then create account
     if (qSnap.empty) {
+      if (!register) {
+        setErrorMessage('Invalid credentials. Please try again.');
+        return;
+      }
       const hashedPassword = await useHashing(passwordValue);
       await addDoc(usernamesRef, {
         username: formValue,
         password: hashedPassword,
       });
+      setFormValue('');
+      setPasswordValue('');
+      setErrorMessage('');
+      setSuccessMessage('Successfully registered.');
     } else {
-      console.log('username already taken');
+      // username taken
+      // if registering, do nothing.
+      if (register) {
+        setSuccessMessage('');
+        setErrorMessage('Username already taken');
+      } else {
+        // checking if passwords match
+        const hashedPassword = await useHashing(passwordValue);
+        if (qSnap.docs[0].data().password === hashedPassword) {
+          setUser(qSnap.docs[0].data().username);
+        } else {
+          setSuccessMessage('');
+          setErrorMessage('Invalid credentials. Please try again.');
+        }
+      }
+      // if loging in, check if username exists and if passwords match
     }
-    setFormValue('');
-    setPasswordValue('');
   }
   return (
     <>
-      <form onSubmit={handleFormSubmit}>
-        <label htmlFor="username">Username</label>
-        <input
-          type="text"
-          value={formValue}
-          onChange={handleFormChange}
-          id="username"
-        />
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          value={passwordValue}
-          id="password"
-          onChange={handlePasswordChange}
-        />
-        <button type="submit">Submit</button>
-      </form>
+      <div className="flex flex-col justify-evenly items-center h-80 w-96 bg-gray-100 rounded-lg">
+        <h1 className="text-xl ">{register ? 'Register' : 'Login'}</h1>
+        <form onSubmit={handleFormSubmit} className="flex flex-col gap-8">
+          <input
+            type="text"
+            value={formValue}
+            name="username"
+            autoComplete="on"
+            onChange={handleFormChange}
+            placeholder="Username"
+            className="w-60 h-8 px-4 rounded"
+          />
+          <input
+            type="password"
+            value={passwordValue}
+            name="password"
+            placeholder="Password"
+            onChange={handlePasswordChange}
+            className="w-60 h-8 px-4 rounded"
+          />
+          <button
+            className="bg-orange-500 text-white w-60 h-8 rounded-sm mt-4"
+            type="submit"
+          >
+            {register ? 'Register' : 'Login'}
+          </button>
+        </form>
+        {errorMessage && (
+          <div className="text-red-500 text-md">{errorMessage}</div>
+        )}
+        {successMessage && (
+          <div className="text-green-500 text-md">{successMessage}</div>
+        )}
+      </div>
+      {register ? (
+        <div className="w-96 h-32 mt-10 flex flex-col justify-center items-center bg-gray-100 rounded-lg">
+          <div>Already have an account?</div>
+          <button
+            className="underline"
+            onClick={() => setRegister((prev) => !prev)}
+          >
+            Log in here.
+          </button>
+        </div>
+      ) : (
+        <div className="w-96 h-32 mt-10 flex flex-col justify-center items-center bg-gray-100 rounded-lg">
+          <div>No account?</div>
+          <button
+            className="underline"
+            onClick={() => setRegister((prev) => !prev)}
+          >
+            Create one here.
+          </button>
+        </div>
+      )}
     </>
   );
 }
