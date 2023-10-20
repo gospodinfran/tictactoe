@@ -37,7 +37,11 @@ export default function LoginForm({
   async function handleFormSubmit(e: React.ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!formValue || !passwordValue) return;
+    if (!formValue || !passwordValue) {
+      setSuccessMessage('');
+      setErrorMessage('Please enter a username and password');
+      return;
+    }
 
     const usernamesRef = collection(db, 'usernames');
     const q = query(usernamesRef, where('username', '==', formValue), limit(1));
@@ -79,9 +83,9 @@ export default function LoginForm({
   }
   return (
     <>
-      <div className="flex flex-col justify-evenly items-center h-80 w-96 bg-gray-100 rounded-lg">
+      <div className="flex flex-col justify-evenly items-center h-88 w-96 bg-gray-100 rounded-lg">
         <h1 className="text-xl ">{register ? 'Register' : 'Login'}</h1>
-        <form onSubmit={handleFormSubmit} className="flex flex-col gap-8">
+        <form onSubmit={handleFormSubmit} className="flex flex-col gap-8 mb-4">
           <input
             type="text"
             value={formValue}
