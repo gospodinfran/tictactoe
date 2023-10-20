@@ -27,13 +27,11 @@ function App() {
   useEffect(() => {
     getUsers();
   }, []);
-  function handleButtonClick() {}
 
   return (
     <>
       <LoginForm />
-      <button onClick={handleButtonClick}>Increase count</button>
-      <TicTacToe />
+      {/*<TicTacToe />*/}
     </>
   );
 }

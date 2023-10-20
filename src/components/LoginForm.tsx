@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore';
 import { useState } from 'react';
 import { db } from '../../lib/firebase';
+import { useHashing } from '../useHashing';
 
 export default function LoginForm() {
   const [formValue, setFormValue] = useState('');
@@ -26,18 +27,17 @@ export default function LoginForm() {
 
     if (!formValue || !passwordValue) return;
 
-    // hash and salt password, can use bcrypt
-
     const usernamesRef = collection(db, 'usernames');
     const q = query(usernamesRef, where('username', '==', formValue), limit(1));
     const qSnap = await getDocs(q);
     if (qSnap.empty) {
+      const hashedPassword = await useHashing(passwordValue);
       await addDoc(usernamesRef, {
         username: formValue,
-        password: passwordValue,
+        password: hashedPassword,
       });
     } else {
-      console.log(qSnap.docs[0].data());
+      console.log('username already taken');
     }
     setFormValue('');
     setPasswordValue('');
