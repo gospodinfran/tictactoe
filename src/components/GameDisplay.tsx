@@ -1,14 +1,12 @@
 import { gameInterface } from './GamesMapped';
 
 interface GameDisplayProps {
-  index: number;
   handleOpenGame: (game: gameInterface) => void;
   game: gameInterface;
   user: string;
 }
 
 export default function GameDisplay({
-  index,
   handleOpenGame,
   game,
   user,
@@ -16,7 +14,7 @@ export default function GameDisplay({
   return (
     <div
       className="w-2/3 h-10 rounded border-2 border-b-0 last:border-b-2 flex justify-between items-center hover:cursor-pointer hover:bg-cyan-100 px-4"
-      key={index}
+      key={game.id}
       onClick={() => handleOpenGame(game)}
     >
       <div>{`${

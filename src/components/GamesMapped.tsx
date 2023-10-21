@@ -10,7 +10,7 @@ export interface gameInterface {
   completed: boolean;
   winner: string;
   createdAt: Timestamp;
-  id?: string;
+  id: string;
 }
 
 interface gamesMappedProps {
@@ -99,10 +99,9 @@ export default function GamesMapped({
               onChange={handleMyGamesButton}
             />
           </div>
-          {games.map((game, index) => (
+          {games.map((game) => (
             <GameDisplay
-              key={index}
-              index={index}
+              key={game.id}
               handleOpenGame={handleOpenGame}
               game={game}
               user={user}

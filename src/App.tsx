@@ -1,10 +1,12 @@
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
@@ -60,6 +62,9 @@ function App() {
 
   const createNewGame = async () => {
     const gamesRef = collection(db, 'games');
+
+    const docRef = doc(gamesRef);
+
     const newGameTemplate = {
       boardState: ['', '', '', '', '', '', '', '', ''],
       player1: user,
@@ -68,8 +73,12 @@ function App() {
       completed: false,
       winner: '',
       createdAt: serverTimestamp(),
+      id: docRef.id,
     };
-    await addDoc(gamesRef, newGameTemplate);
+
+    // Set the data on the document reference
+    await setDoc(docRef, newGameTemplate);
+
     setGames((prevGames) => [...prevGames, newGameTemplate as gameInterface]);
   };
 

@@ -15,6 +15,15 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
 
   useEffect(() => {
     refreshState();
+    const intervalId = setInterval(() => {
+      if (properties.id) {
+        refreshState();
+      }
+    }, 4000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
 
   useEffect(() => {
@@ -53,6 +62,7 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   }, [properties.boardState]);
 
   async function refreshState() {
+    console.log('refreshing');
     const gameRef = doc(db, 'games', properties.id!);
     const gameSnap = await getDoc(gameRef);
     if (gameSnap.exists()) {
@@ -83,31 +93,37 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   }
 
   async function handleTileClick(tileIndex: number) {
-    // check if user is in this game
-    if (!(user === properties.player1 || user === properties.player2)) return;
+    if (user !== properties.player1 && user !== properties.player2) return;
 
-    if (
-      (properties.player1ToPlay && user === properties.player1) ||
-      (!properties.player1ToPlay && user === properties.player2)
-    ) {
-      // can make a move
-      const gameRef = doc(db, 'games', properties.id!);
-      const currentBoardState = properties.boardState;
-      if (currentBoardState[tileIndex] === '' && !played) {
-        setPlayed(true);
-        currentBoardState[tileIndex] =
-          properties.player1ToPlay === true ? 'X' : 'O';
-        await updateDoc(gameRef, {
-          boardState: currentBoardState,
-          player1ToPlay: !properties.player1ToPlay,
-        });
-        setProperties((prev) => ({
-          ...prev,
-          player1ToPlay: prev.player1 === user ? true : false,
-          boardState: currentBoardState,
-        }));
-      }
+    if (!properties.id) {
+      console.log('properties ID is undefined');
+      return;
     }
+    const currentPlayer = properties.player1ToPlay
+      ? properties.player1
+      : properties.player2;
+    if (user !== currentPlayer) return;
+
+    const newBoardState = [...properties.boardState];
+    if (newBoardState[tileIndex] !== '' || played) return;
+
+    setPlayed(true);
+    newBoardState[tileIndex] = currentPlayer === properties.player1 ? 'X' : 'O';
+
+    const gameRef = doc(db, 'games', properties.id!);
+    await updateDoc(gameRef, {
+      boardState: newBoardState,
+      player1ToPlay: !properties.player1ToPlay,
+    });
+
+    setProperties((prev) => ({
+      ...prev,
+      boardState: newBoardState,
+      player1ToPlay: !prev.player1ToPlay,
+    }));
+
+    refreshState();
+    setPlayed(false);
   }
 
   return (
