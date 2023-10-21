@@ -131,7 +131,7 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
       <div className="flex flex-col justify-center items-center gap-12">
         <h1 className="text-4xl">
           {properties.player2
-            ? `${properties.player1} vs ${properties.player2}`
+            ? `${properties.player1}(X) vs ${properties.player2}(O)`
             : 'Waiting for another player!'}
         </h1>
         <div>
@@ -144,11 +144,13 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
         {!properties.winner && (
           <div className="text-xl">
             {properties.player2
-              ? `${
-                  properties.player1ToPlay
-                    ? properties.player1
-                    : properties.player2
-                } to play!`
+              ? properties.player1ToPlay && properties.player1 === user
+                ? 'Your turn!'
+                : properties.player1ToPlay
+                ? `${properties.player1}'s turn to play. Wait for your opponent to make a move.`
+                : properties.player2 === user
+                ? 'Your turn!'
+                : `${properties.player2}'s turn to play. Wait for your opponent to make a move.`
               : `${properties.player1} is waiting for an opponent.`}
           </div>
         )}
