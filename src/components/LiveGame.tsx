@@ -33,7 +33,6 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
         boardState[a] === boardState[b] &&
         boardState[a] === boardState[c]
       ) {
-        // A player has won the game
         if (boardState[a] === 'X') {
           console.log(`${player1} has won!`);
           updateWinner();
@@ -43,7 +42,6 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
           updateWinner();
           return;
         }
-        // You can update game state accordingly or show a winning message to the user.
 
         return;
       }
@@ -88,9 +86,10 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
         await updateDoc(gameRef, { boardState: currentBoardState });
         setProperties((prev) => ({
           ...prev,
-          player1ToPlay: !prev.player1ToPlay,
+          player1ToPlay: properties.player1 === user ? true : false,
           boardState: currentBoardState,
         }));
+        setPlayed(false);
       }
     }
   }
