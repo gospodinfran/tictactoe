@@ -2,7 +2,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { gameInterface } from './GamesMapped';
 import TicTacToe from './TicTacToe';
 import { db } from '../../lib/firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface LiveGameInterface {
   gameProperties: gameInterface;
@@ -11,6 +11,20 @@ interface LiveGameInterface {
 
 export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   const [properties, setProperties] = useState<gameInterface>(gameProperties);
+  const [played, setPlayed] = useState(false);
+
+  useEffect(() => {
+    const winningConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+  }, [properties]);
 
   async function handleJoinGame() {
     if (user === properties.player1 || user === properties.player2) {
@@ -24,8 +38,28 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
     }));
   }
 
-  async function handleTileClick() {
+  async function handleTileClick(tileIndex: number) {
     // check if user is in this game
+    if (!(user === properties.player1 || user === properties.player2)) return;
+
+    if (
+      (properties.player1ToPlay && user === properties.player1) ||
+      (!properties.player1ToPlay && user === properties.player2)
+    ) {
+      // can make a move
+      const gameRef = doc(db, 'games', properties.id!);
+      const currentBoardState = properties.boardState;
+      if (currentBoardState[tileIndex] === '' && !played) {
+        setPlayed(true);
+        currentBoardState[tileIndex] = properties.player1ToPlay ? 'X' : 'O';
+        await updateDoc(gameRef, { boardState: currentBoardState });
+        setProperties((prev) => ({
+          ...prev,
+          player1ToPlay: !properties.player1ToPlay,
+          boardState: currentBoardState,
+        }));
+      }
+    }
   }
 
   return (

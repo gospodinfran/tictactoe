@@ -3,7 +3,7 @@ export default function TicTacToe({
   onTileClick,
 }: {
   board: string[];
-  onTileClick: () => Promise<void>;
+  onTileClick: (tileIndex: number) => Promise<void>;
 }) {
   return (
     <div className="flex flex-col justify-center items-center hover:cursor-pointer">
@@ -11,7 +11,7 @@ export default function TicTacToe({
         {board.map((letter: string, index: number) => {
           return (
             <div
-              onClick={onTileClick}
+              onClick={() => onTileClick(index)}
               className={`h-32 w-32 border-2 border-gray-300 flex justify-center items-center text-6xl ${
                 index % 3 === 1 ? 'border-l-0 border-r-0' : ''
               } ${
