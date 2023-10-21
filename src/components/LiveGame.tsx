@@ -35,6 +35,7 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   }, []);
 
   useEffect(() => {
+    if (properties.winner) return;
     const { boardState, player1, player2 } = properties;
     const winningConditions = [
       [0, 1, 2],
