@@ -1,4 +1,4 @@
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { gameInterface } from './GamesMapped';
 import TicTacToe from './TicTacToe';
 import { db } from '../../lib/firebase';
@@ -12,6 +12,10 @@ interface LiveGameInterface {
 export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   const [properties, setProperties] = useState<gameInterface>(gameProperties);
   const [played, setPlayed] = useState(false);
+
+  useEffect(() => {
+    refreshState();
+  }, []);
 
   useEffect(() => {
     const { boardState, player1, player2 } = properties;
@@ -35,11 +39,11 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
       ) {
         if (boardState[a] === 'X') {
           console.log(`${player1} has won!`);
-          updateWinner();
+          updateWinner(player1);
           return;
         } else if (boardState[a] === 'O') {
           console.log(`${player2} has won!`);
-          updateWinner();
+          updateWinner(player2);
           return;
         }
 
@@ -48,12 +52,21 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
     }
   }, [properties.boardState]);
 
-  async function updateWinner() {
+  async function refreshState() {
     const gameRef = doc(db, 'games', properties.id!);
-    await updateDoc(gameRef, { winner: user });
+    const gameSnap = await getDoc(gameRef);
+    if (gameSnap.exists()) {
+      const updated = gameSnap.data() as gameInterface;
+      setProperties(updated);
+    }
+  }
+
+  async function updateWinner(player: string) {
+    const gameRef = doc(db, 'games', properties.id!);
+    await updateDoc(gameRef, { winner: player });
     setProperties((prev) => ({
       ...prev,
-      winner: user,
+      winner: player,
     }));
   }
 
@@ -82,14 +95,17 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
       const currentBoardState = properties.boardState;
       if (currentBoardState[tileIndex] === '' && !played) {
         setPlayed(true);
-        currentBoardState[tileIndex] = properties.player1ToPlay ? 'X' : 'O';
-        await updateDoc(gameRef, { boardState: currentBoardState });
+        currentBoardState[tileIndex] =
+          properties.player1ToPlay === true ? 'X' : 'O';
+        await updateDoc(gameRef, {
+          boardState: currentBoardState,
+          player1ToPlay: !properties.player1ToPlay,
+        });
         setProperties((prev) => ({
           ...prev,
-          player1ToPlay: properties.player1 === user ? true : false,
+          player1ToPlay: prev.player1 === user ? true : false,
           boardState: currentBoardState,
         }));
-        setPlayed(false);
       }
     }
   }
@@ -108,15 +124,18 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
             onTileClick={handleTileClick}
           />
         </div>
-        <div className="text-xl">
-          {properties.player2
-            ? `${
-                properties.player1ToPlay
-                  ? properties.player1
-                  : properties.player2
-              } to play!`
-            : `${properties.player1} is waiting for an opponent.`}
-        </div>
+
+        {!properties.winner && (
+          <div className="text-xl">
+            {properties.player2
+              ? `${
+                  properties.player1ToPlay
+                    ? properties.player1
+                    : properties.player2
+                } to play!`
+              : `${properties.player1} is waiting for an opponent.`}
+          </div>
+        )}
         {!properties.player2 && (
           <button
             onClick={handleJoinGame}
@@ -124,6 +143,9 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
           >
             Join game
           </button>
+        )}
+        {properties.winner && (
+          <h1 className="text-4xl">{properties.winner} has won!</h1>
         )}
       </div>
     </div>
