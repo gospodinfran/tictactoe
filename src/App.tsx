@@ -9,12 +9,12 @@ import {
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import LoginForm from './components/LoginForm';
-//import TicTacToe from './components/TicTacToe';
 import './index.css';
 import Header from './components/Header';
 import useLocalStorage from './customHooks/useLocalStorage';
 import GamesMapped, { gameInterface } from './components/GamesMapped';
 import Pagination from './components/Pagination';
+import LiveGame from './components/LiveGame';
 
 function App() {
   const [user, setUser] = useLocalStorage();
@@ -24,27 +24,34 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showOpen, setShowOpen] = useState(false);
   const [showInProgress, setShowInProgress] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
   const [showMyGames, setShowMyGames] = useState(false);
+  const [browseGames, setBrowseGames] = useState(false);
+  const [currentGame, setCurrentGame] = useState<null | gameInterface>(null);
 
   const GAMES_PER_PAGE = 10;
-
-  useEffect(() => {}, []);
 
   useEffect(() => {
     localStorage.setItem('user', JSON.stringify(user));
   }, [user]);
 
-  useEffect(() => {
-    fetchGames();
-  }, [currentPage]);
-
-  async function fetchGames() {
+  const fetchGames = async () => {
+    setCurrentGame(null);
     const gamesRef = collection(db, 'games');
     const q = query(gamesRef, orderBy('createdAt'));
     const qSnap = await getDocs(q);
     const gamesData = qSnap.docs.map((game) => game.data());
     setGames(gamesData as gameInterface[]);
-  }
+    setBrowseGames(true);
+  };
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
+  useEffect(() => {
+    setBrowseGames(false);
+  }, [currentGame]);
 
   const createNewGame = async () => {
     const gamesRef = collection(db, 'games');
@@ -53,12 +60,29 @@ function App() {
       player1: user,
       player2: '',
       player1ToPlay: true,
+      completed: false,
       winner: '',
       createdAt: serverTimestamp(),
     };
     await addDoc(gamesRef, newGameTemplate);
     setGames((prevGames) => [...prevGames, newGameTemplate as gameInterface]);
   };
+
+  const lastIndex = currentPage * GAMES_PER_PAGE;
+  const firstIndex = lastIndex - GAMES_PER_PAGE;
+  let filteredGames = showOpen ? games.filter((game) => !game.player2) : games;
+  filteredGames = showInProgress
+    ? filteredGames.filter((game) => !game.completed)
+    : filteredGames;
+  filteredGames = showCompleted
+    ? filteredGames.filter((game) => game.completed)
+    : filteredGames;
+  filteredGames = showMyGames
+    ? filteredGames.filter(
+        (game) => game.player1 === user || game.player2 === user
+      )
+    : filteredGames;
+  const currentGames = filteredGames.slice(firstIndex, lastIndex);
 
   const goToPreviousPage = () => {
     if (currentPage > 1) {
@@ -67,14 +91,10 @@ function App() {
   };
 
   const goToNextPage = () => {
-    if (games.length >= GAMES_PER_PAGE) {
+    if (currentGames.length === GAMES_PER_PAGE) {
       setCurrentPage((cur) => cur + 1);
     }
   };
-
-  const lastIndex = currentPage * GAMES_PER_PAGE;
-  const firstIndex = lastIndex - GAMES_PER_PAGE;
-  const currentGames = games.slice(firstIndex, lastIndex);
 
   return (
     <>
@@ -93,34 +113,36 @@ function App() {
             setUser={setUser}
           />
         )}
-        {user && (
-          <h1 className="text-3xl">
-            Welcome {`${user[0].toLocaleUpperCase()}${user.slice(1)}`}!
-          </h1>
-        )}
       </div>
-      <div className="mt-20" />
-      {user && games && (
+      <div className="relative" />
+      {currentGame && <LiveGame gameProperties={currentGame} />}
+      {user && browseGames && currentGames && (
         <div>
           <GamesMapped
             games={currentGames}
             user={user}
             showOpen={showOpen}
             showInProgress={showInProgress}
+            showCompleted={showCompleted}
+            setShowCompleted={setShowCompleted}
             showMyGames={showMyGames}
             setShowOpen={setShowOpen}
             setShowInProgress={setShowInProgress}
             setShowMyGames={setShowMyGames}
+            setBrowseGames={setBrowseGames}
+            setCurrentGame={setCurrentGame}
           />
-          <div className="">
-            <button className="border h-10" onClick={goToPreviousPage}>
+          <div className="absolute top-[54rem] flex justify-end w-5/6">
+            <button className="border h-10 w-24" onClick={goToPreviousPage}>
               Last page
             </button>
             <Pagination
-              totalGames={games.length}
+              totalGames={filteredGames.length}
+              gamesPerPage={GAMES_PER_PAGE}
+              currentPage={currentPage}
               setCurrentPage={setCurrentPage}
             />
-            <button className="border h-10" onClick={goToNextPage}>
+            <button className="border h-10 w-24" onClick={goToNextPage}>
               Next page
             </button>
           </div>

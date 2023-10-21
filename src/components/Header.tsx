@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 interface HeaderProps {
   user: null | string;
@@ -54,7 +54,7 @@ export default function Header({
                     createGame();
                   }}
                 >
-                  Create a game
+                  Create new game
                 </button>
               </li>
             </ul>

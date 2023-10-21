@@ -12,7 +12,7 @@ export default function TicTacToe() {
                 index % 3 === 1 ? 'border-l-0 border-r-0' : ''
               } ${
                 index > 2 && index < 6 ? 'border-t-0 border-b-0' : ''
-              } hover:border-cyan-300`}
+              } hover:bg-cyan-300`}
               key={index}
             >
               {letter}
