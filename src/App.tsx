@@ -40,7 +40,12 @@ function App() {
     const gamesRef = collection(db, 'games');
     const q = query(gamesRef, orderBy('createdAt'));
     const qSnap = await getDocs(q);
-    const gamesData = qSnap.docs.map((game) => game.data());
+    const gamesData = qSnap.docs.map((game) => {
+      return {
+        ...game.data(),
+        id: game.id,
+      };
+    });
     setGames(gamesData as gameInterface[]);
     setBrowseGames(true);
   };
@@ -115,7 +120,7 @@ function App() {
         )}
       </div>
       <div className="relative" />
-      {currentGame && <LiveGame gameProperties={currentGame} />}
+      {currentGame && <LiveGame gameProperties={currentGame} user={user!} />}
       {user && browseGames && currentGames && (
         <div>
           <GamesMapped

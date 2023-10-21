@@ -8,7 +8,7 @@ import {
 } from 'firebase/firestore';
 import { useState } from 'react';
 import { db } from '../../lib/firebase';
-import { useHashing } from '../useHashing';
+import { useHashing } from '../customHooks/useHashing';
 
 interface LoginFormProps {
   register: boolean;

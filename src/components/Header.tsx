@@ -34,7 +34,10 @@ export default function Header({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <button className="h-14 border-transparent border-b-[3px] hover:border-white">
+            <button
+              onClick={onFetchGames}
+              className="h-14 border-transparent border-b-[3px] hover:border-white"
+            >
               Games
             </button>
             <ul
