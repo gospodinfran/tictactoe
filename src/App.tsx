@@ -40,6 +40,7 @@ function App() {
 
   const fetchGames = async () => {
     setCurrentGame(null);
+    setShowLeaderboards(false);
     const gamesRef = collection(db, 'games');
     const q = query(gamesRef, orderBy('createdAt'));
     const qSnap = await getDocs(q);
@@ -60,11 +61,6 @@ function App() {
   useEffect(() => {
     setBrowseGames(false);
   }, [currentGame]);
-
-  useEffect(() => {
-    setBrowseGames(false);
-    setCurrentGame(null);
-  }, [showLeaderboards]);
 
   const createNewGame = async () => {
     const gamesRef = collection(db, 'games');
@@ -123,6 +119,8 @@ function App() {
         setLoginForm={setLoginForm}
         onFetchGames={fetchGames}
         createGame={createNewGame}
+        setBrowseGames={setBrowseGames}
+        setCurrentGame={setCurrentGame}
         onShowLeaderboards={setShowLeaderboards}
       />
       <div className="flex flex-col items-center mt-36">

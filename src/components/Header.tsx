@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { gameInterface } from './GamesMapped';
 
 interface HeaderProps {
   user: null | string;
@@ -7,6 +8,8 @@ interface HeaderProps {
   onFetchGames: () => void;
   createGame: () => Promise<void>;
   onShowLeaderboards: React.Dispatch<React.SetStateAction<boolean>>;
+  setBrowseGames: React.Dispatch<React.SetStateAction<boolean>>;
+  setCurrentGame: React.Dispatch<React.SetStateAction<gameInterface | null>>;
 }
 
 export default function Header({
@@ -16,6 +19,8 @@ export default function Header({
   onFetchGames,
   createGame,
   onShowLeaderboards,
+  setBrowseGames,
+  setCurrentGame,
 }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   function handleMouseEnter() {
@@ -24,6 +29,12 @@ export default function Header({
 
   function handleMouseLeave() {
     setDropdownOpen(false);
+  }
+
+  function handleLeaderboardsButton() {
+    setBrowseGames(false);
+    setCurrentGame(null);
+    onShowLeaderboards(true);
   }
 
   return (
@@ -66,7 +77,7 @@ export default function Header({
           </div>
           <button
             className="h-14 border-transparent border-b-[3px] hover:border-white"
-            onClick={() => onShowLeaderboards(true)}
+            onClick={handleLeaderboardsButton}
           >
             Leaderboards
           </button>

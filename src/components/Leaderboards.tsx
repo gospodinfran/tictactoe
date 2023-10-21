@@ -33,7 +33,10 @@ export default function Leaderboards() {
       <div className="flex flex-col w-1/3">
         {leaderboards.map((user) => {
           return (
-            <div className="flex justify-between items-center border p-4">
+            <div
+              key={user.username}
+              className="flex justify-between items-center border p-4"
+            >
               <h2>{user.username}</h2>
               <div>
                 <div>Wins: {user.wins}</div>
