@@ -15,7 +15,7 @@ export default function GameDisplay({
 }: GameDisplayProps) {
   return (
     <div
-      className="w-2/3 h-10 rounded border-2 border-b-0 last:border-b-2 flex justify-between items-center hover:cursor-pointer hover:bg-cyan-300 px-4"
+      className="w-2/3 h-10 rounded border-2 border-b-0 last:border-b-2 flex justify-between items-center hover:cursor-pointer hover:bg-cyan-100 px-4"
       key={index}
       onClick={() => handleOpenGame(game)}
     >

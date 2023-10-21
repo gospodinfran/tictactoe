@@ -14,6 +14,7 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   const [played, setPlayed] = useState(false);
 
   useEffect(() => {
+    const { boardState, player1, player2 } = properties;
     const winningConditions = [
       [0, 1, 2],
       [3, 4, 5],
@@ -24,7 +25,39 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
       [0, 4, 8],
       [2, 4, 6],
     ];
-  }, [properties]);
+
+    for (const condition of winningConditions) {
+      const [a, b, c] = condition;
+      if (
+        boardState[a] &&
+        boardState[a] === boardState[b] &&
+        boardState[a] === boardState[c]
+      ) {
+        // A player has won the game
+        if (boardState[a] === 'X') {
+          console.log(`${player1} has won!`);
+          updateWinner();
+          return;
+        } else if (boardState[a] === 'O') {
+          console.log(`${player2} has won!`);
+          updateWinner();
+          return;
+        }
+        // You can update game state accordingly or show a winning message to the user.
+
+        return;
+      }
+    }
+  }, [properties.boardState]);
+
+  async function updateWinner() {
+    const gameRef = doc(db, 'games', properties.id!);
+    await updateDoc(gameRef, { winner: user });
+    setProperties((prev) => ({
+      ...prev,
+      winner: user,
+    }));
+  }
 
   async function handleJoinGame() {
     if (user === properties.player1 || user === properties.player2) {
@@ -55,7 +88,7 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
         await updateDoc(gameRef, { boardState: currentBoardState });
         setProperties((prev) => ({
           ...prev,
-          player1ToPlay: !properties.player1ToPlay,
+          player1ToPlay: !prev.player1ToPlay,
           boardState: currentBoardState,
         }));
       }

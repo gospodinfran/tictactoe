@@ -120,7 +120,9 @@ function App() {
         )}
       </div>
       <div className="relative" />
-      {currentGame && <LiveGame gameProperties={currentGame} user={user!} />}
+      {currentGame && user && (
+        <LiveGame gameProperties={currentGame} user={user!} />
+      )}
       {user && browseGames && currentGames && (
         <div>
           <GamesMapped
