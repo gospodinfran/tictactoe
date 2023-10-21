@@ -3,6 +3,7 @@ import {
   doc,
   getDoc,
   increment,
+  onSnapshot,
   updateDoc,
 } from 'firebase/firestore';
 import { gameInterface } from './GamesMapped';
@@ -21,16 +22,16 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
-    refreshState();
-    const intervalId = setInterval(() => {
-      if (properties.id) {
-        refreshState();
-      }
-    }, 4000);
+    const gameRef = doc(db, 'games', properties.id!);
 
-    return () => {
-      clearInterval(intervalId);
-    };
+    const unsubscribe = onSnapshot(gameRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const updated = docSnapshot.data() as gameInterface;
+        setProperties(updated);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -67,12 +68,15 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   }, [properties.boardState]);
 
   async function refreshState() {
-    console.log('refreshing');
     const gameRef = doc(db, 'games', properties.id!);
-    const gameSnap = await getDoc(gameRef);
-    if (gameSnap.exists()) {
-      const updated = gameSnap.data() as gameInterface;
-      setProperties(updated);
+    try {
+      const gameSnap = await getDoc(gameRef);
+      if (gameSnap.exists()) {
+        const updated = gameSnap.data() as gameInterface;
+        setProperties(updated);
+      }
+    } catch (error) {
+      console.error('Error fetching game data: ', error);
     }
   }
 

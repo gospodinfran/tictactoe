@@ -18,6 +18,8 @@ import Pagination from './components/Pagination';
 import LiveGame from './components/LiveGame';
 import Leaderboards from './components/Leaderboards';
 
+const GAMES_PER_PAGE = 10;
+
 function App() {
   const [user, setUser] = useLocalStorage();
   const [register, setRegister] = useState(false);
@@ -31,12 +33,6 @@ function App() {
   const [browseGames, setBrowseGames] = useState(false);
   const [currentGame, setCurrentGame] = useState<null | gameInterface>(null);
   const [showLeaderboards, setShowLeaderboards] = useState(false);
-
-  const GAMES_PER_PAGE = 10;
-
-  useEffect(() => {
-    localStorage.setItem('user', JSON.stringify(user));
-  }, [user]);
 
   const fetchGames = async () => {
     setCurrentGame(null);
