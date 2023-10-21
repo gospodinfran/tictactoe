@@ -1,9 +1,11 @@
 import {
   addDoc,
   collection,
+  doc,
   getDocs,
   limit,
   query,
+  setDoc,
   where,
 } from 'firebase/firestore';
 import { useState } from 'react';
@@ -53,6 +55,11 @@ export default function LoginForm({
         setErrorMessage('Invalid credentials. Please try again.');
         return;
       }
+      await setDoc(doc(db, 'leaderboards', formValue), {
+        wins: 0,
+        losses: 0,
+      });
+
       const hashedPassword = await useHashing(passwordValue);
       await addDoc(usernamesRef, {
         username: formValue,

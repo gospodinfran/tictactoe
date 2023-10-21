@@ -1,4 +1,10 @@
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  increment,
+  updateDoc,
+} from 'firebase/firestore';
 import { gameInterface } from './GamesMapped';
 import TicTacToe from './TicTacToe';
 import { db } from '../../lib/firebase';
@@ -12,6 +18,7 @@ interface LiveGameInterface {
 export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   const [properties, setProperties] = useState<gameInterface>(gameProperties);
   const [played, setPlayed] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     refreshState();
@@ -47,11 +54,9 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
         boardState[a] === boardState[c]
       ) {
         if (boardState[a] === 'X') {
-          console.log(`${player1} has won!`);
           updateWinner(player1);
           return;
         } else if (boardState[a] === 'O') {
-          console.log(`${player2} has won!`);
           updateWinner(player2);
           return;
         }
@@ -72,12 +77,17 @@ export default function LiveGame({ gameProperties, user }: LiveGameInterface) {
   }
 
   async function updateWinner(player: string) {
+    if (completed) return;
     const gameRef = doc(db, 'games', properties.id!);
+    const leaderboardsRef = collection(db, 'leaderboards');
+    const playerLeaderboardsDoc = doc(leaderboardsRef, user);
     await updateDoc(gameRef, { winner: player });
+    await updateDoc(playerLeaderboardsDoc, { wins: increment(1) });
     setProperties((prev) => ({
       ...prev,
       winner: player,
     }));
+    setCompleted(true);
   }
 
   async function handleJoinGame() {
