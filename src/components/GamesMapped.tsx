@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase/firestore';
 import Checkbox from './Checkbox';
 
 export interface gameInterface {
@@ -6,10 +7,12 @@ export interface gameInterface {
   player2: string;
   player1ToPlay: boolean;
   winner: string;
+  createdAt: Timestamp;
 }
 
 interface gamesMappedProps {
   games: gameInterface[];
+  user: string;
   showOpen: boolean;
   showInProgress: boolean;
   showMyGames: boolean;
@@ -20,6 +23,7 @@ interface gamesMappedProps {
 
 export default function GamesMapped({
   games,
+  user,
   showOpen,
   showInProgress,
   showMyGames,
@@ -29,7 +33,7 @@ export default function GamesMapped({
 }: gamesMappedProps) {
   return (
     <div className="">
-      {games && (
+      {games.length > 0 && (
         <div className="flex flex-col items-center w-full">
           <h1 className="text-2xl mb-8">Games</h1>
           <div className="flex gap-4">
@@ -51,9 +55,15 @@ export default function GamesMapped({
           </div>
           {games.map((game, index) => {
             return (
-              <div className="w-2/3 border flex" key={index}>
+              <div
+                className="w-2/3 h-10 rounded border flex items-center"
+                key={index}
+              >
                 <div>{`${game.player2 ? '2/2' : '1/2'} `}players.</div>
-                {`${game.player1}`}
+                <div>{`${game.player1}`}</div>
+                {(user === game.player1 || user === game.player2) && (
+                  <button className="rounded bg-cyan-300">Join</button>
+                )}
               </div>
             );
           })}

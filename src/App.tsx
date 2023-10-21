@@ -1,4 +1,11 @@
-import { addDoc, collection, getDocs, limit, query } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import LoginForm from './components/LoginForm';
@@ -7,6 +14,7 @@ import './index.css';
 import Header from './components/Header';
 import useLocalStorage from './customHooks/useLocalStorage';
 import GamesMapped, { gameInterface } from './components/GamesMapped';
+import Pagination from './components/Pagination';
 
 function App() {
   const [user, setUser] = useLocalStorage();
@@ -20,17 +28,23 @@ function App() {
 
   const GAMES_PER_PAGE = 10;
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
     localStorage.setItem('user', JSON.stringify(user));
   }, [user]);
 
-  const fetchGames = async () => {
+  useEffect(() => {
+    fetchGames();
+  }, [currentPage]);
+
+  async function fetchGames() {
     const gamesRef = collection(db, 'games');
-    const q = query(gamesRef, limit(GAMES_PER_PAGE));
+    const q = query(gamesRef, orderBy('createdAt'));
     const qSnap = await getDocs(q);
     const gamesData = qSnap.docs.map((game) => game.data());
     setGames(gamesData as gameInterface[]);
-  };
+  }
 
   const createNewGame = async () => {
     const gamesRef = collection(db, 'games');
@@ -40,10 +54,27 @@ function App() {
       player2: '',
       player1ToPlay: true,
       winner: '',
+      createdAt: serverTimestamp(),
     };
     await addDoc(gamesRef, newGameTemplate);
     setGames((prevGames) => [...prevGames, newGameTemplate as gameInterface]);
   };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((cur) => cur - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (games.length >= GAMES_PER_PAGE) {
+      setCurrentPage((cur) => cur + 1);
+    }
+  };
+
+  const lastIndex = currentPage * GAMES_PER_PAGE;
+  const firstIndex = lastIndex - GAMES_PER_PAGE;
+  const currentGames = games.slice(firstIndex, lastIndex);
 
   return (
     <>
@@ -69,16 +100,31 @@ function App() {
         )}
       </div>
       <div className="mt-20" />
-      {user && (
-        <GamesMapped
-          games={games}
-          showOpen={showOpen}
-          showInProgress={showInProgress}
-          showMyGames={showMyGames}
-          setShowOpen={setShowOpen}
-          setShowInProgress={setShowInProgress}
-          setShowMyGames={setShowMyGames}
-        />
+      {user && games && (
+        <div>
+          <GamesMapped
+            games={currentGames}
+            user={user}
+            showOpen={showOpen}
+            showInProgress={showInProgress}
+            showMyGames={showMyGames}
+            setShowOpen={setShowOpen}
+            setShowInProgress={setShowInProgress}
+            setShowMyGames={setShowMyGames}
+          />
+          <div className="">
+            <button className="border h-10" onClick={goToPreviousPage}>
+              Last page
+            </button>
+            <Pagination
+              totalGames={games.length}
+              setCurrentPage={setCurrentPage}
+            />
+            <button className="border h-10" onClick={goToNextPage}>
+              Next page
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
