@@ -16,6 +16,7 @@ import useLocalStorage from './customHooks/useLocalStorage';
 import GamesMapped, { gameInterface } from './components/GamesMapped';
 import Pagination from './components/Pagination';
 import LiveGame from './components/LiveGame';
+import Leaderboards from './components/Leaderboards';
 
 function App() {
   const [user, setUser] = useLocalStorage();
@@ -29,6 +30,7 @@ function App() {
   const [showMyGames, setShowMyGames] = useState(false);
   const [browseGames, setBrowseGames] = useState(false);
   const [currentGame, setCurrentGame] = useState<null | gameInterface>(null);
+  const [showLeaderboards, setShowLeaderboards] = useState(false);
 
   const GAMES_PER_PAGE = 10;
 
@@ -59,6 +61,11 @@ function App() {
     setBrowseGames(false);
   }, [currentGame]);
 
+  useEffect(() => {
+    setBrowseGames(false);
+    setCurrentGame(null);
+  }, [showLeaderboards]);
+
   const createNewGame = async () => {
     const gamesRef = collection(db, 'games');
 
@@ -75,7 +82,6 @@ function App() {
       id: docRef.id,
     };
 
-    // Set the data on the document reference
     await setDoc(docRef, newGameTemplate);
 
     setGames((prevGames) => [...prevGames, newGameTemplate as gameInterface]);
@@ -117,6 +123,7 @@ function App() {
         setLoginForm={setLoginForm}
         onFetchGames={fetchGames}
         createGame={createNewGame}
+        onShowLeaderboards={setShowLeaderboards}
       />
       <div className="flex flex-col items-center mt-36">
         {user === null && loginForm && (
@@ -163,6 +170,7 @@ function App() {
           </div>
         </div>
       )}
+      {showLeaderboards && <Leaderboards />}
     </>
   );
 }

@@ -6,6 +6,7 @@ interface HeaderProps {
   setLoginForm: React.Dispatch<React.SetStateAction<boolean>>;
   onFetchGames: () => void;
   createGame: () => Promise<void>;
+  onShowLeaderboards: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function Header({
@@ -14,6 +15,7 @@ export default function Header({
   setLoginForm,
   onFetchGames,
   createGame,
+  onShowLeaderboards,
 }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   function handleMouseEnter() {
@@ -62,7 +64,10 @@ export default function Header({
               </li>
             </ul>
           </div>
-          <button className="h-14 border-transparent border-b-[3px] hover:border-white">
+          <button
+            className="h-14 border-transparent border-b-[3px] hover:border-white"
+            onClick={() => onShowLeaderboards(true)}
+          >
             Leaderboards
           </button>
         </div>

@@ -74,41 +74,40 @@ export default function GamesMapped({
           Welcome {`${user[0].toLocaleUpperCase()}${user.slice(1)}`}!
         </h1>
       </div>
-      {games.length > 0 && (
-        <div className="flex flex-col items-center w-full">
-          <h1 className="text-2xl mb-5">Games</h1>
-          <div className="flex gap-5 mb-6">
-            <Checkbox
-              name="Open"
-              checked={showOpen}
-              onChange={handleOpenButton}
-            />
-            <Checkbox
-              name="In progress"
-              checked={showInProgress}
-              onChange={handleProgressButton}
-            />
-            <Checkbox
-              name="Completed"
-              checked={showCompleted}
-              onChange={handleCompletedButton}
-            />
-            <Checkbox
-              name="My games"
-              checked={showMyGames}
-              onChange={handleMyGamesButton}
-            />
-          </div>
-          {games.map((game) => (
-            <GameDisplay
-              key={game.id}
-              handleOpenGame={handleOpenGame}
-              game={game}
-              user={user}
-            />
-          ))}
+      <div className="flex flex-col items-center w-full">
+        <h1 className="text-2xl mb-5">Games</h1>
+        <div className="flex gap-5 mb-6">
+          <Checkbox
+            name="Open"
+            checked={showOpen}
+            onChange={handleOpenButton}
+          />
+          <Checkbox
+            name="In progress"
+            checked={showInProgress}
+            onChange={handleProgressButton}
+          />
+          <Checkbox
+            name="Completed"
+            checked={showCompleted}
+            onChange={handleCompletedButton}
+          />
+          <Checkbox
+            name="My games"
+            checked={showMyGames}
+            onChange={handleMyGamesButton}
+          />
         </div>
-      )}
+        {games.map((game) => (
+          <GameDisplay
+            key={game.id}
+            handleOpenGame={handleOpenGame}
+            game={game}
+            user={user}
+          />
+        ))}
+      </div>
+      )
     </div>
   );
 }
