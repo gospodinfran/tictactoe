@@ -62,6 +62,7 @@ export default function LoginForm({
       setPasswordValue('');
       setErrorMessage('');
       setSuccessMessage('Successfully registered.');
+      setRegister(false);
     } else {
       // username taken
       // if registering, do nothing.

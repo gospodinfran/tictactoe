@@ -5,6 +5,7 @@ interface HeaderProps {
   setUser: React.Dispatch<React.SetStateAction<string | null>>;
   setLoginForm: React.Dispatch<React.SetStateAction<boolean>>;
   onFetchGames: () => void;
+  createGame: () => Promise<void>;
 }
 
 export default function Header({
@@ -12,6 +13,7 @@ export default function Header({
   setUser,
   setLoginForm,
   onFetchGames,
+  createGame,
 }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   function handleMouseEnter() {
@@ -46,7 +48,14 @@ export default function Header({
                 </button>
               </li>
               <li className="h-full hover:text-orange-400 hover:cursor-pointer">
-                <button className="h-full">Create a game</button>
+                <button
+                  className="h-full"
+                  onClick={() => {
+                    createGame();
+                  }}
+                >
+                  Create a game
+                </button>
               </li>
             </ul>
           </div>
