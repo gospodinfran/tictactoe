@@ -38,7 +38,7 @@ export default function Header({
   }
 
   return (
-    <div className="h-14 bg-violet-600 text-white text-xl shadow-xl flex justify-between items-center mb-16 rounded-b-3xl">
+    <div className="h-16 bg-violet-600 text-white text-xl shadow-xl flex justify-between items-center mb-16 px-6 rounded-b-3xl">
       {user && (
         <div className="ml-5 text-xl flex gap-10 items-center">
           <div className="text-2xl">Tic-Tac-Toe</div>
